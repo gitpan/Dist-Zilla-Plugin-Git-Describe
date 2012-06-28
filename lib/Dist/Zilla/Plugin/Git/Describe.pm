@@ -1,10 +1,10 @@
 package Dist::Zilla::Plugin::Git::Describe;
-# git description: 8dfa55e5b960fbd886c93a99bb563efac7440d92
+# git description: 0.001-3-gebab9c3
 
 {
-  $Dist::Zilla::Plugin::Git::Describe::VERSION = '0.001';
+  $Dist::Zilla::Plugin::Git::Describe::VERSION = '0.002';
 }
-# ABSTRACT: add a $VERSION to your packages
+# ABSTRACT: add the results of `git describe` (roughly) to your main module
 use Moose;
 with(
   'Dist::Zilla::Role::FileMunger',
@@ -32,14 +32,7 @@ sub munge_files {
   return unless my $package_stmts = $document->find('PPI::Statement::Package');
 
   my $git  = Git::Wrapper->new( $self->zilla->root );
-  my @lines = try {
-    $git->describe({ long => 1 });
-  } catch {
-    die $_ unless /cannot describe anything/;
-    my $line  = ($git->show_ref({ head => 0 }))[0];
-    my ($sha) = split q{ }, $line;
-    return $sha;
-  };
+  my @lines = $git->describe({ long => 1, always => 1 });
 
   my $desc = $lines[0];
 
@@ -85,11 +78,11 @@ __PACKAGE__->meta->make_immutable;
 
 =head1 NAME
 
-Dist::Zilla::Plugin::Git::Describe - add a $VERSION to your packages
+Dist::Zilla::Plugin::Git::Describe - add the results of `git describe` (roughly) to your main module
 
 =head1 VERSION
 
-version 0.001
+version 0.002
 
 =head1 SYNOPSIS
 

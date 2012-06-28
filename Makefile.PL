@@ -9,7 +9,7 @@ use ExtUtils::MakeMaker 6.30;
 
 
 my %WriteMakefileArgs = (
-  "ABSTRACT" => "add a \$VERSION to your packages",
+  "ABSTRACT" => "add the results of `git describe` (roughly) to your main module",
   "AUTHOR" => "Ricardo Signes <rjbs\@cpan.org>",
   "BUILD_REQUIRES" => {
     "Test::More" => "0.96"
@@ -29,7 +29,7 @@ my %WriteMakefileArgs = (
     "Try::Tiny" => 0,
     "namespace::autoclean" => 0
   },
-  "VERSION" => "0.001",
+  "VERSION" => "0.002",
   "test" => {
     "TESTS" => ""
   }

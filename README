@@ -1,9 +1,9 @@
 
 
 This archive contains the distribution Dist-Zilla-Plugin-Git-Describe,
-version 0.001:
+version 0.002:
 
-  add a $VERSION to your packages
+  add the results of `git describe` (roughly) to your main module
 
 This software is copyright (c) 2012 by Ricardo Signes.
 
