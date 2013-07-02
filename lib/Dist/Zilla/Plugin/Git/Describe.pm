@@ -1,8 +1,8 @@
 package Dist::Zilla::Plugin::Git::Describe;
-# git description: 0.001-3-gebab9c3
+# git description: 0.002-0-gde1a30d
 
 {
-  $Dist::Zilla::Plugin::Git::Describe::VERSION = '0.002';
+  $Dist::Zilla::Plugin::Git::Describe::VERSION = '0.003';
 }
 # ABSTRACT: add the results of `git describe` (roughly) to your main module
 use Moose;
@@ -73,6 +73,7 @@ sub munge_files {
 __PACKAGE__->meta->make_immutable;
 1;
 
+__END__
 
 =pod
 
@@ -82,7 +83,7 @@ Dist::Zilla::Plugin::Git::Describe - add the results of `git describe` (roughly)
 
 =head1 VERSION
 
-version 0.002
+version 0.003
 
 =head1 SYNOPSIS
 
@@ -114,7 +115,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-
-
-__END__
-
