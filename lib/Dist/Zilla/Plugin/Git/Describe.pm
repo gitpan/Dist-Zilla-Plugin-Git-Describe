@@ -1,10 +1,6 @@
 package Dist::Zilla::Plugin::Git::Describe;
-# git description: 0.002-0-gde1a30d
-
-{
-  $Dist::Zilla::Plugin::Git::Describe::VERSION = '0.003';
-}
 # ABSTRACT: add the results of `git describe` (roughly) to your main module
+$Dist::Zilla::Plugin::Git::Describe::VERSION = '0.004';
 use Moose;
 with(
   'Dist::Zilla::Role::FileMunger',
@@ -13,9 +9,37 @@ with(
 
 use Git::Wrapper;
 use Try::Tiny;
+use List::Util 1.33 'all';
 
 use namespace::autoclean;
 
+#pod =head1 SYNOPSIS
+#pod
+#pod in dist.ini
+#pod
+#pod   [Git::Describe]
+#pod
+#pod =head1 DESCRIPTION
+#pod
+#pod This plugin will add the long-form git commit description for the current repo
+#pod to the dist's main module as a comment.  It may change, in the future, to put
+#pod things in a package variable, or to provide an option.
+#pod
+#pod It inserts this in the same place that PkgVersion would insert a version.
+#pod
+#pod =attr on_package_line
+#pod
+#pod If true, then the comment is added to the same line as the package declaration.
+#pod Otherwise, it is added on its own line, with an additional blank line following it.
+#pod Defaults to false.
+#pod
+#pod =cut
+
+has on_package_line => (
+  is  => 'ro',
+  isa => 'Bool',
+  default => 0,
+);
 
 sub munge_files {
   my ($self) = @_;
@@ -23,11 +47,6 @@ sub munge_files {
   my $file = $self->zilla->main_module;
 
   my $document = $self->ppi_document_for_file($file);
-
-  if ($self->document_assigns_to_variable($document, '$VERSION')) {
-    $self->log([ 'skipping %s: assigns to $VERSION', $file->name ]);
-    return;
-  }
 
   return unless my $package_stmts = $document->find('PPI::Statement::Package');
 
@@ -51,7 +70,9 @@ sub munge_files {
       next;
     }
 
-    my $perl = "# git description: $desc\n";
+    my $perl = $self->on_package_line
+             ? " # git description: $desc"
+             : "\n# git description: $desc\n";
 
     my $version_doc = PPI::Document->new(\$perl);
     my @children = $version_doc->children;
@@ -63,8 +84,7 @@ sub munge_files {
     ]);
 
     Carp::carp("error inserting git description in " . $file->name)
-      unless $stmt->insert_after($children[0]->clone)
-      and    $stmt->insert_after( PPI::Token::Whitespace->new("\n") );
+      unless all { $stmt->insert_after($_->clone) } reverse @children;
   }
 
   $self->save_ppi_document_to_file($document, $file);
@@ -73,9 +93,9 @@ sub munge_files {
 __PACKAGE__->meta->make_immutable;
 1;
 
-__END__
-
 =pod
+
+=encoding UTF-8
 
 =head1 NAME
 
@@ -83,7 +103,7 @@ Dist::Zilla::Plugin::Git::Describe - add the results of `git describe` (roughly)
 
 =head1 VERSION
 
-version 0.003
+version 0.004
 
 =head1 SYNOPSIS
 
@@ -98,6 +118,14 @@ to the dist's main module as a comment.  It may change, in the future, to put
 things in a package variable, or to provide an option.
 
 It inserts this in the same place that PkgVersion would insert a version.
+
+=head1 ATTRIBUTES
+
+=head2 on_package_line
+
+If true, then the comment is added to the same line as the package declaration.
+Otherwise, it is added on its own line, with an additional blank line following it.
+Defaults to false.
 
 =head1 SEE ALSO
 
@@ -115,3 +143,11 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
+
+__END__
+
+#pod =head1 SEE ALSO
+#pod
+#pod L<PodVersion|Dist::Zilla::Plugin::PkgVersion>
+#pod
+#pod =cut
